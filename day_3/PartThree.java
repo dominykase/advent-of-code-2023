@@ -159,7 +159,7 @@ public class PartThree {
                     for (int ii = 0; ii < line.length(); ii++) {
                         int j = ii;
 
-                        if (Character.isDigit(line.charAt(i))) {
+                        if (Character.isDigit(line.charAt(ii))) {
                             map.put(j, new Number(0, false));
 
                             do {
@@ -184,7 +184,7 @@ public class PartThree {
                         for (int ii = 0; ii < belowLine.length(); ii++) {
                             int j = ii;
 
-                            if (Character.isDigit(belowLine.charAt(i))) {
+                            if (Character.isDigit(belowLine.charAt(ii))) {
                                 map.put(j, new Number(0, false));
 
                                 do {
