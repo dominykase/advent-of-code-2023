@@ -41,11 +41,15 @@ func main() {
     hands := parse(contents)
 
     //for _, hand := range hands {
-    //    fmt.Println(hand.cards, hand.play, hand.bid)
+      //  fmt.Println(hand.cards, hand.play, hand.bid)
     //}
 
     hands = sortByHighCard(hands)
     hands = sortByPlay(hands)
+    
+    for _, hand := range hands {
+        fmt.Println(hand.play, hand.cards, hand.bid)
+    }
 
     sum := 0
 
@@ -177,13 +181,19 @@ func maxOfSlice(slice []int) int {
 }
 
 func replaceJokers(cards []int, val int) []int {
-    for i, card := range cards {
+    newCards := make([]int, 0)
+
+    for _, card := range cards {
+        newCards = append(newCards, card)
+    }
+    
+    for i, card := range newCards {
         if card == 1 {
-            cards[i] = val
+            newCards[i] = val
         }
     }
 
-    return cards
+    return newCards
 }
 
 func findJokerCount(cards []int) int {
@@ -198,29 +208,41 @@ func findJokerCount(cards []int) int {
     return count
 }
 
-func isFiveOfAKind(cards []int) bool {
-    cards = replaceJokers(cards, maxOfSlice(cards))
-
-    for _, card := range cards {
-        if card != cards[0] {
-            return false
-        }
-    }
-
-    return true
+func findMostFavourableCard(cards []int) int, count {
 }
 
-func isFourOfAKind(cards []int) bool {
-    for i := 0; i < 2; i++ {
+func isFiveOfAKind(cards []int) bool {
+    for i := 0; i < len(cards); i++ {
         count := 0
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        tempCards := replaceJokers(cards, cards[i])
+
+        for j := 0; j < len(tempCards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 4 {
+        if count == 5 {
+            return true
+        }
+    }
+
+    return false
+}
+
+func isFourOfAKind(cards []int) bool {
+    for i := 0; i < len(cards); i++ {
+        count := 0
+        tempCards := replaceJokers(cards, cards[i])
+
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
+                count++
+            }
+        }
+
+        if count == 4 {
             return true
         }
     }
@@ -230,20 +252,20 @@ func isFourOfAKind(cards []int) bool {
 
 
 func isFullHouse(cards []int) bool {
-    cards = replaceJokers(cards, maxOfSlice(cards))
     var threeMatch *Match = nil
 
-    for i := 0; i < 3; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 3 {
-            threeMatch = &Match{card: cards[i], count: count}
+        if count == 3 {
+            threeMatch = &Match{card: tempCards[i], count: count}
         }
     }
 
@@ -251,16 +273,17 @@ func isFullHouse(cards []int) bool {
         return false
     }
 
-    for i := 0; i < 4; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 2 && cards[i] != threeMatch.card {
+        if count >= 2 && cards[i] != threeMatch.card {
             return true
         }
     }
@@ -269,18 +292,17 @@ func isFullHouse(cards []int) bool {
 }
 
 func isThreeOfAKind(cards []int) bool {
-    cards = replaceJokers(cards, maxOfSlice(cards))
-
-    for i := 0; i < 3; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 3 {
+        if count == 3 {
             return true
         }
     }
@@ -289,20 +311,20 @@ func isThreeOfAKind(cards []int) bool {
 }
 
 func isTwoPair(cards []int) bool {
-    cards = replaceJokers(cards, maxOfSlice(cards))
     var firstPair *Match = nil
 
-    for i := 0; i < 4; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 2 {
-            firstPair = &Match{card: cards[i], count: count}
+        if count == 2 {
+            firstPair = &Match{card: tempCards[i], count: count}
         }
     }
 
@@ -310,16 +332,17 @@ func isTwoPair(cards []int) bool {
         return false
     }
 
-    for i := 0; i < 4; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
-
-        if count + findJokerCount(cards) == 2 && cards[i] != firstPair.card {
+        
+        if count >= 2 && tempCards[i] != firstPair.card {
             return true
         }
     }
@@ -328,18 +351,17 @@ func isTwoPair(cards []int) bool {
 }
 
 func isOnePair(cards []int) bool {
-    cards = replaceJokers(cards, maxOfSlice(cards))
-
-    for i := 0; i < 4; i++ {
+    for i := 0; i < len(cards); i++ {
         count := 0
+        tempCards := replaceJokers(cards, cards[i])
 
-        for j := i; j < len(cards); j++ {
-            if cards[i] == cards[j] {
+        for j := 0; j < len(cards); j++ {
+            if tempCards[i] == tempCards[j] {
                 count++
             }
         }
 
-        if count + findJokerCount(cards) == 2 {
+        if count == 2 {
             return true
         }
     }
