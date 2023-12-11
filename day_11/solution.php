@@ -10,17 +10,17 @@ $contents = array_map(function ($val) {
     return str_split($val);
 }, $contents);
 
+$emptyLineIds = [];
+
 for ($i = 0; $i < count($contents); $i++) {
     if (array_reduce($contents[$i], function ($carry, $item) {
             return $carry && $item == '.';
         }, true)) {
-        $line = array_fill(0, count($contents[$i]), '.');
-
-        array_splice($contents, $i, 0, [$line]);
-        $i++;
+        $emptyLineIds[] = $i;
     }
 }
 
+$emptyColumnIds = [];
 
 for ($i = 0; $i < count($contents[0]); $i++) {
     $column = array_column($contents, $i);
@@ -28,24 +28,39 @@ for ($i = 0; $i < count($contents[0]); $i++) {
     if (array_reduce($column, function ($carry, $item) {
             return $carry && $item == '.';
         }, true)) {
-        for ($j = 0; $j < count($contents); $j++) {
-            array_splice($contents[$j], $i, 0, ['.']);
-        }
-        $i++;
+        $emptyColumnIds[] = $i;
     }
 }
 
 class Point
 {
+    public const SPACING = 1000000;
+
     public function __construct(
         public int $x,
         public int $y,
     ) {
     }
 
-    public function getDistance(Point $point): float
+    public function getDistance(Point $point, array $emptyLineIds, array $emptyColumnIds): float
     {
-        return abs($this->x - $point->x) + abs($this->y - $point->y);
+        $columnSpacing = 0;                
+
+        for ($i = min($this->x, $point->x) + 1; $i < max($point->x, $this->x); $i++) {
+            if (in_array($i, $emptyColumnIds)) {
+                $columnSpacing += self::SPACING - 1;
+            }
+        }
+
+        $lineSpacing = 0;
+
+        for ($i = min($this->y, $point->y) + 1; $i < max($point->y, $this->y); $i++) {
+            if (in_array($i, $emptyLineIds)) {
+                $lineSpacing += self::SPACING - 1;
+            }
+        }
+
+        return abs($this->x - $point->x) + abs($this->y - $point->y) + $columnSpacing + $lineSpacing;
     }
 }
 
@@ -67,7 +82,7 @@ for ($i = 0; $i < count($galaxies); $i++) {
             continue;
         }
 
-        $sum += $galaxies[$i]->getDistance($galaxies[$j]);
+        $sum += $galaxies[$i]->getDistance($galaxies[$j], $emptyLineIds, $emptyColumnIds);
     }
 }
 
